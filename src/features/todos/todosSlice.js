@@ -31,15 +31,14 @@ export default function todosReducer(state = initialState, action) {
       })
     }
     case 'todos/colorSelected': {
-      const { color, todoId } = action.payload
       return state.map((todo) => {
-        if (todo.id !== todoId) {
+        if (todo.id !== action.payload.id) {
           return todo
         }
 
         return {
           ...todo,
-          color,
+          color: action.payload.color,
         }
       })
     }
