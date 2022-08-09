@@ -6,7 +6,6 @@ const selectTodoIds  = state => state.todos.map(todo => todo.id)
 
 const TodoList = () => {
   const todoIds  = useSelector(selectTodoIds, shallowEqual)
-  console.log(todoIds)
 
   // since `todos` is an array, we can loop over it
   const renderedListItems = todoIds.map(todoId => {

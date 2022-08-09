@@ -16,14 +16,12 @@ const TodoListItem = ({id}) => {
 
     const handleCompletedChanged = (e) => {
         dispatch({type: 'todos/todoToggled', payload: todo.id})
-        console.log(todo.id)
     }
 
     const handleColorChanged = (e) => {
         let id = todo.id
         let color = e.target.value
         dispatch({type: 'todos/colorSelected', payload: {color, id}})
-        console.log({type: 'todos/colorSelected', payload: {color, id}})
     }
 
     const onDelete = (e) => {
