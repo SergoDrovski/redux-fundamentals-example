@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import {useDispatch, useSelector} from 'react-redux'
+import { saveNewTodo } from '../todos/todosSlice'
 
 const Header = () => {
   const [text, setText] = useState('')
@@ -12,7 +13,7 @@ const Header = () => {
       const trimmedText = e.target.value.trim()
       // If the user pressed the Enter key:
       if (e.key === 'Enter' && trimmedText) {
-          dispatch({ type: 'todos/todoAdded', payload: trimmedText })
+          dispatch(saveNewTodo(trimmedText))
           // And clear out the text input
           setText('')
       }
