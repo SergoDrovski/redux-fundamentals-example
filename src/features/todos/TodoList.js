@@ -1,11 +1,11 @@
 import React from 'react'
 import { useSelector , shallowEqual } from 'react-redux'
+import { selectTodoIds } from './todosSlice.js'
+
 import TodoListItem from './TodoListItem'
 
-const selectTodoIds  = state => state.todos.map(todo => todo.id)
-
 const TodoList = () => {
-  const todoIds  = useSelector(selectTodoIds, shallowEqual)
+  const todoIds  = useSelector(selectTodoIds)
 
   // since `todos` is an array, we can loop over it
   const renderedListItems = todoIds.map(todoId => {
