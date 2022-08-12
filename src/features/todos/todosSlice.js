@@ -72,21 +72,26 @@ export function saveNewTodo(text) {
 }
 
 
-// export const selectFilteredTodos2 = createSelector(
-//     state => state.todos,
-//     state => state.filters,
-//     (todos, filters) => {
-//
-//
-//       if (status === StatusFilters.All){
-//         return todos
-//       }
-//       const completed = status === StatusFilters.Completed
-//       return todos.filter((todo, status) => todo.completed === completed)
-//     }
-//
-//
-// )
+
+export const selectFilteredTodos2 = createSelector(
+    state => state.todos,
+    state => state.filters,
+    (todos, filters) => {
+      let res = []
+      if (filters.colors.length !== 0) {
+        filters.colors.forEach((color)=>{
+          res = todos.filter((todo)=>todo.color === color).concat(res)
+        })
+        if (filters.status === StatusFilters.All){
+          return res
+        }
+      } else {
+        res = todos
+      }
+      const completed = filters.status === StatusFilters.Completed
+      return res.filter((todo) => todo.completed === completed)
+    }
+)
 
 
 export const selectFilteredTodos = createSelector(
@@ -102,6 +107,6 @@ export const selectFilteredTodos = createSelector(
 )
 
 export const selectTodoIds = createSelector(
-    selectFilteredTodos,
+    selectFilteredTodos2,
     todos => todos.map(todo => todo.id)
 )
