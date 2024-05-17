@@ -103,7 +103,7 @@ new Server({
   serializers: {
     todo: IdSerializer.extend({
       serialize(object, request) {
-        // HACK Mirage keeps wanting to store integer IDs as strings. Always convert them to numbers for now.
+        // HACK Mirage keeps wanting to index integer IDs as strings. Always convert them to numbers for now.
         const numerifyId = (todo) => {
           todo.id = Number(todo.id)
         }

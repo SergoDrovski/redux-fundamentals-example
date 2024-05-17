@@ -1,3 +1,6 @@
+import {createSlice} from "@reduxjs/toolkit";
+import {todosSlice} from "@/features/todos/todosSlice";
+
 export const StatusFilters = {
   All: 'all',
   Active: 'active',
@@ -9,17 +12,19 @@ const initialState = {
   colors: [],
 }
 
-export default function filtersReducer(state = initialState, action) {
-  switch (action.type) {
-    case 'filters/statusFilterChanged': {
+export const filtersSlice = createSlice({
+  name: "filters",
+  initialState,
+  reducers: {
+    statusFilterChanged: (state, action)=> {
       return {
         // Again, one less level of nesting to copy
         ...state,
-        status: action.payload,
+        status: action.payload.status,
       }
-    }
-    case 'filters/colorFilterChanged': {
-      let { color, changeType } = action.payload
+    },
+    colorFilterChanged: (state, action)=> {
+      let { color, changeType } = action.payload.colorFilter
       const { colors } = state
 
       switch (changeType) {
@@ -38,15 +43,22 @@ export default function filtersReducer(state = initialState, action) {
           return {
             ...state,
             colors: state.colors.filter(
-              (existingColor) => existingColor !== color
+                (existingColor) => existingColor !== color
             ),
           }
         }
         default:
           return state
       }
-    }
-    default:
-      return state
+    },
   }
-}
+})
+
+export const {
+  statusFilterChanged,
+  colorFilterChanged,
+} = filtersSlice.actions
+
+export default filtersSlice.reducer
+
+export const selectFilters = state => state.filters
