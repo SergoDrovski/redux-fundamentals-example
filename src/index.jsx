@@ -1,22 +1,11 @@
 import {createRoot} from "react-dom/client";
-import {Provider, useDispatch} from "react-redux";
+import {Provider} from "react-redux";
 import './style/index.css'
-import App from './App'
+import App from './pages/App'
 import './api/server'
 import store from './store'
-import {fetchTodos} from "@/features/todos/todosSlice";
-
-
-// ReactDOM.render(
-//   <React.StrictMode>
-//       <Provider store={index}>
-//           <App />
-//       </Provider>
-//   </React.StrictMode>,
-//   document.getElementById('root')
-// )
-
-store.dispatch(fetchTodos());
+// import {fetchTodos} from "@/features/todos/todosSlice";
+// store.dispatch(fetchTodos());
 
 const container = document.getElementById("root");
 

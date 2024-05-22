@@ -1,5 +1,5 @@
 import {createSlice} from "@reduxjs/toolkit";
-import {todosSlice} from "@/features/todos/todosSlice";
+// import {noteSlice} from "@/features/todos/noteSlice";
 
 export const StatusFilters = {
   All: 'all',

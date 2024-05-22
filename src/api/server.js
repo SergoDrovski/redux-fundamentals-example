@@ -67,6 +67,26 @@ new Server({
 
     const server = this
 
+    this.get('/notes', function (schema, req) {
+
+      const result = [
+        {
+          id: 0,
+          title: "Todo one",
+          status: "active",
+          todos: server.createList('todo', 5),
+        },
+        {
+          id: 1,
+          title: "Todo second",
+          status: "active",
+          todos: server.createList('todo', 2),
+        },
+
+      ]
+      return result;
+    })
+
     this.post('/todos', function (schema, req) {
       const data = this.normalizedRequestAttrs()
 
