@@ -1,21 +1,8 @@
 import React from 'react'
-import {availableColors, capitalize} from '../filters/colors'
-import {colorFilterChanged, statusFilterChanged, StatusFilters} from '../filters/filtersSlice'
+import { statusFilterChanged, StatusFilters} from '../filters/filtersSlice'
 import {useDispatch, useSelector} from 'react-redux'
-import { createSelector } from '@reduxjs/toolkit'
-import {allCompleted, completedCleared, selectTodos} from '../notes/notesSlice'
+import {allCompleted, completedCleared } from '../notes/notesSlice'
 
-
-const RemainingTodos = ({count}) => {
-    const suffix = count === 1 ? '' : 's'
-
-    return (
-        <div className="todo-count">
-            <h5>Remaining Todos</h5>
-            <strong>{count}</strong> item{suffix} left
-        </div>
-    )
-}
 
 const StatusFilter = () => {
     const dispatch = useDispatch()
@@ -45,57 +32,8 @@ const StatusFilter = () => {
     )
 }
 
-const ColorFilters = () => {
+const TodosFooter = () => {
     const dispatch = useDispatch()
-    const activeFilterColors = useSelector(state => state.filters.colors)
-
-    const onColorChange = (color, changeType) => dispatch(colorFilterChanged({type: 'filters/colorFilterChanged', colorFilter: {color, changeType}}))
-
-    const renderedColors = availableColors.map((color) => {
-        const checked = activeFilterColors.includes(color)
-
-        const handleChange = () => {
-            const changeType = checked ? 'removed' : 'added'
-            onColorChange(color, changeType)
-        }
-
-        return (
-            <label key={color}>
-                <input
-                    type="checkbox"
-                    name={color}
-                    checked={checked}
-                    onChange={handleChange}
-                />
-                <span
-                    className="color-block"
-                    style={{
-                        backgroundColor: color,
-                    }}
-                ></span>
-                {capitalize(color)}
-            </label>
-        )
-    })
-
-    return (
-        <div className="filters colorFilters">
-            <h5>Filter by Color</h5>
-            <form className="colorSelection">{renderedColors}</form>
-        </div>
-    )
-}
-
-// const selectTodoRemaining = createSelector(
-//     selectTodos,
-//     todos => todos.filter(todo => !todo.completed)
-// )
-
-const Footer = () => {
-    const dispatch = useDispatch()
-    // const todosRemaining = useSelector(selectTodoRemaining)
-    // const currRemaining = todosRemaining.length
-
     const handleAllCompletedChanged = (e) => dispatch(allCompleted())
     const handleCompletedCleared = (e) => dispatch(completedCleared())
 
@@ -117,11 +55,8 @@ const Footer = () => {
                     Clear Completed
                 </button>
             </div>
-
-            {/*<RemainingTodos count={currRemaining}/>*/}
-            {/*<ColorFilters />*/}
         </footer>
     )
 }
 
-export default Footer
+export default TodosFooter

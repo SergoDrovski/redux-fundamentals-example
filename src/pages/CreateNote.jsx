@@ -1,58 +1,42 @@
-import React, {useEffect, useState} from 'react'
+import {useEffect} from 'react'
 import Header from '../features/header/Header'
 import TodoList from '../features/todos/TodoList'
-import Footer from '../features/footer/Footer'
-import Navigation from "@/features/nav/Navigation";
+import TodosFooter from '../features/todos/TodosFooter'
 import {useDispatch, useSelector} from "react-redux";
-import {createNote, noteTitleAdded} from "@/features/notes/notesSlice";
+import {noteTitleAdded, setCurrentNote} from "@/features/notes/notesSlice";
+import {useMatch} from "react-router-dom";
+import Loader from "@/features/common/Loader";
+import TodosHeader from "@/features/todos/TodosHeader";
 
 
 function CreateNote() {
-    debugger
     const dispatch  = useDispatch();
-    const {status, list, currentNote, currentId}  = useSelector(state => state.notes);
+    const noteRout = useMatch("/note/:id");
+    const { currentNote, status }  = useSelector(state => state.notes);
 
-    const [text, setText] = useState(currentNote.title);
-
+    const currentId = noteRout.params.id;
     useEffect(() => {
-        if(status === 'complete') {
-            const newId = list.length > 0 ? list[list.length-1].id + 1 : 0;
-            if(currentId !== newId) dispatch(createNote(newId));
+        if(status === "complete"){
+            dispatch(setCurrentNote(Number(currentId)));
         }
-    }, [status, currentId]);
+    }, [status]);
 
-    const handleChange = (e) => setText(e.target.value)
+    if(status === "idle"){
+        return (<Loader/>);
+    }
 
-    const handleKeyDown = (e) => {
-
-        const trimmedText = e.target.value.trim()
-        if (trimmedText && (e.key === 'Enter' || e.type === "blur")) {
-            dispatch(noteTitleAdded(trimmedText));
-        }
+    const updateTitle = (title) => {
+        dispatch(noteTitleAdded(String(title)));
     }
 
     return (
         <>
-            <Navigation/>
-            <main>
-                <section className="md:container md:mx-auto">
-                    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                        <input
-                            className="text-center text-3xl font-bold tracking-tight text-gray-900 w-full"
-                            placeholder="Click to edit Title"
-                            onChange={handleChange}
-                            onKeyDown={handleKeyDown}
-                            onBlur={handleKeyDown}
-                            value={text}
-                        />
-                    </div>
-                    <div className="todoapp rounded-lg">
-                        <Header/>
-                        <TodoList todos={currentNote.todos}/>
-                        <Footer/>
-                    </div>
-                </section>
-            </main>
+            <Header title={currentNote.title} updateTitle={updateTitle}/>
+            <div className="todoapp rounded-lg">
+                <TodosHeader/>
+                <TodoList/>
+                <TodosFooter/>
+            </div>
         </>
     )
 }

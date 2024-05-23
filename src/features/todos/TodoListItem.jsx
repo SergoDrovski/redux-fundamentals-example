@@ -1,32 +1,19 @@
 import React from 'react'
-import {availableColors, capitalize} from '../filters/colors'
 import {useDispatch} from 'react-redux'
 import { todoDeleted, todoToggled } from '../notes/notesSlice'
 
 const TodoListItem = ({todo}) => {
     const dispatch = useDispatch()
 
-    const {text, completed, color} = todo
+    const {text, completed} = todo
 
     const handleCompletedChanged = (e) => {
         dispatch(todoToggled(todo.id))
     }
 
-    // const handleColorChanged = (e) => {
-    //     let id = todo.id
-    //     let color = e.target.value
-    //     dispatch(colorSelected({color, id}))
-    // }
-
     const onDelete = (e) => {
         dispatch(todoDeleted(todo.id))
     }
-
-    const colorOptions = availableColors.map((c) => (
-        <option key={c} value={c}>
-            {capitalize(c)}
-        </option>
-    ))
 
     return (
         <li className="flex items-center justify-between gap-x-6 py-5">
@@ -43,7 +30,7 @@ const TodoListItem = ({todo}) => {
                                   clipRule="evenodd"/>
                         </svg>
                     </button>
-                    <p className="break-all text-sm font-semibold leading-6 text-gray-900">{text}</p>
+                    <p className={(completed ? "decoration-2 line-through" : "") + " break-all text-sm font-semibold leading-6 text-gray-900"}>{text}</p>
                 </div>
             </div>
             <div className="flex flex-none items-center gap-x-4">

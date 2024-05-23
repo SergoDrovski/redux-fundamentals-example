@@ -1,6 +1,6 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import {selectFilteredTodos, selectTodoIds} from '../notes/notesSlice.js'
+import {selectFilteredTodos} from '../notes/notesSlice.js'
 
 import TodoListItem from './TodoListItem'
 

@@ -4,11 +4,10 @@ import {selectFilters, StatusFilters} from "@/features/filters/filtersSlice";
 
 export const todo = {
     text: "",
-    color: "",
     completed: false
 }
-export const note = {
-    title: "",
+export const initialNote = {
+    title: null,
     status: "active",
     todos: []
 }
@@ -16,7 +15,7 @@ export const note = {
 const initialNotes = {
     status: "idle",
     list: [],
-    currentNote: note,
+    currentNote: initialNote,
     currentId: 0
 }
 
@@ -34,13 +33,17 @@ export const notesSlice = createSlice({
             return state;
         },
 
-        createNote: (state, action)=> {
-            // state.currentNote = {...note, id: action.payload};
+        setCurrentNote: (state, action)=> {
+            const note = state.list.find(note => note.id === action.payload);
+            if (note) {
+                state.currentNote = {...note, id: action.payload};
+            } else {
+                state.currentNote = {...initialNote, id: action.payload};
+            }
             state.currentId = action.payload;
             return state;
         },
         noteUpdate: (state)=> {
-            // state.list.push({ id: state.currentId, ...state.currentNote })
             const note = state.list.find(note => note.id === state.currentId);
             if (note) {
                 let index = state.list.indexOf(note)
@@ -62,37 +65,45 @@ export const notesSlice = createSlice({
             return state;
         },
         todoAdded: (state, action)=> {
-            const todos = state.currentNote.todos
+            const todos = state.currentNote.todos;
             let newId = 0;
             if(todos.length > 0) {
                 todos.forEach((todo => {if(todo.id > newId) newId = todo.id;}));
                 newId++;
             }
             todos.push({...todo, id: newId, text: action.payload});
+            state.currentNote.status = newStatusNote(todos);
             return state
         },
         todoToggled: (state, action)=> {
-            state.currentNote.todos.forEach((todo)=> {
+            const todos = state.currentNote.todos;
+            todos.forEach((todo)=> {
                 if (todo.id === action.payload) {
                     todo.completed = !todo.completed
                 }
             })
+            state.currentNote.status = newStatusNote(todos);
             return state;
         },
         todoDeleted: (state, action)=> {
-            state.currentNote.todos = state.currentNote.todos.filter((todo)=> {
+            const todos = state.currentNote.todos;
+            state.currentNote.todos = todos.filter((todo)=> {
                 return todo.id !== action.payload
             })
+            state.currentNote.status = newStatusNote(state.currentNote.todos);
             return state;
         },
         allCompleted: (state)=> {
-            state.currentNote.todos = state.currentNote.todos.map(todo => {
+            const todos = state.currentNote.todos;
+            state.currentNote.todos = todos.map(todo => {
                 return {...todo, completed: true}
             })
+            state.currentNote.status = newStatusNote(state.currentNote.todos);
             return state;
         },
         completedCleared: (state)=> {
             state.currentNote.todos = state.currentNote.todos.filter(todo => !todo.completed);
+            state.currentNote.status = newStatusNote(state.currentNote.todos);
             return state;
         },
     }
@@ -102,7 +113,7 @@ export const {
     noteUpdate,
     noteTitleAdded,
     notesLoaded,
-    createNote,
+    setCurrentNote,
     allCompleted,
     completedCleared,
     todoAdded,
@@ -114,9 +125,18 @@ export default notesSlice.reducer
 
 export const selectList = state => state.notes.list
 export const selectStatusNotes = state => state.notes.status
-export const selectCurrentNote = state => state.notes.currentNote
+
+export const selectLastIndexList = (state) => {
+    const list =  state.notes.list;
+    return list.length > 0 ? list[list.length-1].id : null;
+}
 
 export const selectTodos = state => state.notes.currentNote.todos;
+
+export const newStatusNote =  (todos) => {
+    return todos.filter(todo => !todo.completed).length > 0 ? "active" : "completed";
+}
+
 export const fetchNotes =  () => {
     return async (dispatch, getState) => {
         const resp = await client.get('/fakeApi/notes');
@@ -125,23 +145,35 @@ export const fetchNotes =  () => {
     }
 }
 
+export const fetchNoteUpdate =  () => {
+    return async (dispatch, getState) => {
+        debugger
+        const state = getState();
+        const {currentId,currentNote} = state.notes;
+        const list = [...state.notes.list];
+        const note = list.find(note => note.id === currentId);
+        if (note) {
+            let index = list.indexOf(note)
+            list[index] = { id: currentId, ...currentNote };
+        } else {
+            list.push({ id: currentId, ...currentNote });
+        }
+        const resp = await client.get("/fakeApi/notes")
+             dispatch(notesLoaded(resp));
+
+    }
+}
+
 export const selectFilteredTodos = createSelector(
     [selectTodos, selectFilters],
     (todos, filters) => {
-        const {status, colors} = filters
+        const {status} = filters
         const showAllCompletions = status === StatusFilters.All
-        if (showAllCompletions && colors.length === 0) return todos
+        if (showAllCompletions) return todos
 
         const completedStatus = status === StatusFilters.Completed
-        let res =  todos.filter(todo => {
-            const statusMatches = showAllCompletions || todo.completed === completedStatus
-            const colorMatches = colors.length === 0 || colors.includes(todo.color)
-            return statusMatches && colorMatches
+        return todos.filter(todo => {
+            return showAllCompletions || todo.completed === completedStatus
         })
-        return res
     }
-)
-export const selectTodoIds = createSelector(
-    [selectFilteredTodos],
-    todos => todos.map(todo => todo.id)
 )
