@@ -1,12 +1,15 @@
-import {client} from "@/api/client";
+import {storage} from "@/features/storageApi/storage";
 import {createSelector, createSlice} from "@reduxjs/toolkit"
 import {selectFilters, StatusFilters} from "@/features/filters/filtersSlice";
 
 export const todo = {
+    // id: "1",
     text: "",
     completed: false
 }
 export const initialNote = {
+    // id: "1",
+    createdAt: "",
     title: null,
     status: "active",
     todos: []
@@ -16,54 +19,50 @@ const initialNotes = {
     status: "idle",
     list: [],
     currentNote: initialNote,
-    currentId: 0
 }
 
 export const notesSlice = createSlice({
     name: "notes",
     initialState: initialNotes,
     reducers: {
-        notesLoading: (state, action)=> {
-            state.status = action.payload;
-            return state;
-        },
+        // notesLoading: (state, action)=> {
+        //     state.status = action.payload;
+        //     return state;
+        // },
         notesLoaded: (state, action)=> {
             state.list = action.payload;
             state.status = "complete";
             return state;
         },
-
         setCurrentNote: (state, action)=> {
             const note = state.list.find(note => note.id === action.payload);
             if (note) {
                 state.currentNote = {...note, id: action.payload};
             } else {
-                state.currentNote = {...initialNote, id: action.payload};
+                state.currentNote = {...initialNote};
             }
-            state.currentId = action.payload;
             return state;
         },
-        noteUpdate: (state)=> {
-            const note = state.list.find(note => note.id === state.currentId);
-            if (note) {
-                let index = state.list.indexOf(note)
-                state.list[index] = { id: state.currentId, ...state.currentNote };
-            } else {
-                state.list.push({ id: state.currentId, ...state.currentNote });
-            }
-        },
+        // noteUpdate: (state)=> {
+        //     const note = state.list.find(note => note.id === state.currentId);
+        //     if (note) {
+        //         let index = state.list.indexOf(note)
+        //         state.list[index] = { id: state.currentId, ...state.currentNote };
+        //     } else {
+        //         state.list.push({ id: state.currentId, ...state.currentNote });
+        //     }
+        // },
         noteTitleAdded:(state, action) => {
             state.currentNote.title = action.payload
             return state;
         },
-
-        todosLoaded: (state, action)=> {
-            action.payload.forEach(todo => {
-                state.todos[todo.id] = todo
-            })
-            state.status = "idle";
-            return state;
-        },
+        // todosLoaded: (state, action)=> {
+        //     action.payload.forEach(todo => {
+        //         state.todos[todo.id] = todo
+        //     })
+        //     state.status = "idle";
+        //     return state;
+        // },
         todoAdded: (state, action)=> {
             const todos = state.currentNote.todos;
             let newId = 0;
@@ -110,7 +109,7 @@ export const notesSlice = createSlice({
 })
 
 export const {
-    noteUpdate,
+    // noteUpdate,
     noteTitleAdded,
     notesLoaded,
     setCurrentNote,
@@ -126,10 +125,10 @@ export default notesSlice.reducer
 export const selectList = state => state.notes.list
 export const selectStatusNotes = state => state.notes.status
 
-export const selectLastIndexList = (state) => {
-    const list =  state.notes.list;
-    return list.length > 0 ? list[list.length-1].id : null;
-}
+// export const selectLastIndexList = (state) => {
+//     const list =  state.notes.list;
+//     return list.length > 0 ? list[list.length-1].id : null;
+// }
 
 export const selectTodos = state => state.notes.currentNote.todos;
 
@@ -139,28 +138,23 @@ export const newStatusNote =  (todos) => {
 
 export const fetchNotes =  () => {
     return async (dispatch, getState) => {
-        const resp = await client.get('/fakeApi/notes');
+        const resp = await storage.find();
         dispatch(notesLoaded(resp));
-        console.log(resp);
     }
 }
 
-export const fetchNoteUpdate =  () => {
+export const fetchNoteUpdate = (id) => {
     return async (dispatch, getState) => {
-        debugger
+        let resp;
         const state = getState();
-        const {currentId,currentNote} = state.notes;
-        const list = [...state.notes.list];
-        const note = list.find(note => note.id === currentId);
+        const {currentNote} = state.notes;
+        const note = state.notes.list.find(note => note.id === id);
         if (note) {
-            let index = list.indexOf(note)
-            list[index] = { id: currentId, ...currentNote };
+            resp = await storage.updateOne(id, currentNote);
         } else {
-            list.push({ id: currentId, ...currentNote });
+            resp = await storage.insertOne(currentNote);
         }
-        const resp = await client.get("/fakeApi/notes")
-             dispatch(notesLoaded(resp));
-
+        if(resp) dispatch(notesLoaded(resp));
     }
 }
 

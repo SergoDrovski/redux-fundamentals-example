@@ -1,7 +1,15 @@
-export async function client(endpoint, { body, ...customConfig } = {}) {
+class AdapterDB {
+  constructor() {
+
+  }
+}
+
+
+export async function adapter() {
   const headers = { 'Content-Type': 'application/json' }
 
   const config = {
+    method: body ? 'POST' : 'GET',
     ...customConfig,
     headers: {
       ...headers,
@@ -15,8 +23,7 @@ export async function client(endpoint, { body, ...customConfig } = {}) {
 
   let data
   try {
-    debugger
-    const response = await fetch(endpoint, config)
+    const response = await window.fetch(endpoint, config)
     data = await response.json()
     if (response.ok) {
       return data
@@ -32,9 +39,5 @@ client.get = function (endpoint, customConfig = {}) {
 }
 
 client.post = function (endpoint, body, customConfig = {}) {
-  return client(endpoint, { ...customConfig, body, method: 'POST' })
-}
-
-client.patch = function (endpoint, body, customConfig = {}) {
-  return client(endpoint, { ...customConfig, body, method: 'PATCH' })
+  return client(endpoint, { ...customConfig, body })
 }

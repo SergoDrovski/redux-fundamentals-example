@@ -17,7 +17,7 @@ function CreateNote() {
     const currentId = noteRout.params.id;
     useEffect(() => {
         if(status === "complete"){
-            dispatch(setCurrentNote(Number(currentId)));
+            dispatch(setCurrentNote(currentId));
         }
     }, [status]);
 

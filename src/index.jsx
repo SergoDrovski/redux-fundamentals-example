@@ -2,7 +2,7 @@ import {createRoot} from "react-dom/client";
 import {Provider} from "react-redux";
 import './style/index.css'
 import App from './pages/App'
-import './api/server'
+// import './api/server'
 import store from './store'
 // import {fetchTodos} from "@/features/todos/todosSlice";
 // store.dispatch(fetchTodos());
