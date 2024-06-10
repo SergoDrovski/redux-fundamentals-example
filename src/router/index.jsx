@@ -24,7 +24,7 @@ const checkConnect = async () => {
 
 export const router = createBrowserRouter([
     {
-        path: '/',
+        path: '/redux-fundamentals-example/',
         element: <Layout />,
         children: [
             {
@@ -33,14 +33,14 @@ export const router = createBrowserRouter([
                 element: <Notes />
             },
             {
-                path: '/note/:id',
+                path: 'note/:id',
                 loader: checkConnect,
                 element: <CreateNote />
             },
         ],
     },
     {
-        path: '/connect',
+        path: '/redux-fundamentals-example/connect',
         element: <ConnectStorage />
     },
 ]);
