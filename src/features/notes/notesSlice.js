@@ -3,14 +3,11 @@ import {createSelector, createSlice} from "@reduxjs/toolkit"
 import {selectFilters, StatusFilters} from "@/features/filters/filtersSlice";
 
 export const todo = {
-    // id: "1",
     text: "",
     completed: false
 }
 export const initialNote = {
-    // id: "1",
-    createdAt: "",
-    title: null,
+    title: "",
     status: "active",
     todos: []
 }
@@ -18,23 +15,47 @@ export const initialNote = {
 const initialNotes = {
     status: "idle",
     list: [],
-    currentNote: initialNote,
+    currentNote: null,
 }
 
 export const notesSlice = createSlice({
     name: "notes",
     initialState: initialNotes,
     reducers: {
-        // notesLoading: (state, action)=> {
-        //     state.status = action.payload;
-        //     return state;
-        // },
+        notesLoading: (state, action)=> {
+            state.status = action.payload;
+            return state;
+        },
         notesLoaded: (state, action)=> {
             state.list = action.payload;
             state.status = "complete";
             return state;
         },
+        noteAdded: (state, action)=> {
+            // debugger
+            state.list.push(action.payload);
+            state.status = "complete";
+            return state
+        },
+        noteUpdate: (state, action)=> {
+            // debugger
+            const {index, note} = action.payload
+            state.list[index] = note;
+            state.status = "complete";
+            return state
+        },
+        noteDelete: (state, action)=> {
+            // debugger
+            state.list = state.list.filter((note) => note.id !== action.payload);
+            state.status = "complete";
+            return state
+        },
         setCurrentNote: (state, action)=> {
+            // debugger
+            if(action.payload === null) {
+                state.currentNote = null;
+                return state;
+            }
             const note = state.list.find(note => note.id === action.payload);
             if (note) {
                 state.currentNote = {...note, id: action.payload};
@@ -43,52 +64,25 @@ export const notesSlice = createSlice({
             }
             return state;
         },
-        // noteUpdate: (state)=> {
-        //     const note = state.list.find(note => note.id === state.currentId);
-        //     if (note) {
-        //         let index = state.list.indexOf(note)
-        //         state.list[index] = { id: state.currentId, ...state.currentNote };
-        //     } else {
-        //         state.list.push({ id: state.currentId, ...state.currentNote });
-        //     }
-        // },
         noteTitleAdded:(state, action) => {
             state.currentNote.title = action.payload
             return state;
         },
-        // todosLoaded: (state, action)=> {
-        //     action.payload.forEach(todo => {
-        //         state.todos[todo.id] = todo
-        //     })
-        //     state.status = "idle";
-        //     return state;
-        // },
         todoAdded: (state, action)=> {
             const todos = state.currentNote.todos;
-            let newId = 0;
-            if(todos.length > 0) {
-                todos.forEach((todo => {if(todo.id > newId) newId = todo.id;}));
-                newId++;
-            }
-            todos.push({...todo, id: newId, text: action.payload});
+            todos.push({...todo, text: action.payload});
             state.currentNote.status = newStatusNote(todos);
             return state
         },
         todoToggled: (state, action)=> {
             const todos = state.currentNote.todos;
-            todos.forEach((todo)=> {
-                if (todo.id === action.payload) {
-                    todo.completed = !todo.completed
-                }
-            })
+            todos[action.payload].completed = !todos[action.payload].completed
             state.currentNote.status = newStatusNote(todos);
             return state;
         },
         todoDeleted: (state, action)=> {
             const todos = state.currentNote.todos;
-            state.currentNote.todos = todos.filter((todo)=> {
-                return todo.id !== action.payload
-            })
+            todos.splice(action.payload, 1);
             state.currentNote.status = newStatusNote(state.currentNote.todos);
             return state;
         },
@@ -109,7 +103,10 @@ export const notesSlice = createSlice({
 })
 
 export const {
-    // noteUpdate,
+    notesLoading,
+    noteAdded,
+    noteUpdate,
+    noteDelete,
     noteTitleAdded,
     notesLoaded,
     setCurrentNote,
@@ -121,14 +118,6 @@ export const {
 } = notesSlice.actions
 
 export default notesSlice.reducer
-
-export const selectList = state => state.notes.list
-export const selectStatusNotes = state => state.notes.status
-
-// export const selectLastIndexList = (state) => {
-//     const list =  state.notes.list;
-//     return list.length > 0 ? list[list.length-1].id : null;
-// }
 
 export const selectTodos = state => state.notes.currentNote.todos;
 
@@ -145,16 +134,42 @@ export const fetchNotes =  () => {
 
 export const fetchNoteUpdate = (id) => {
     return async (dispatch, getState) => {
+        // debugger
+        dispatch(notesLoading('loading'))
         let resp;
         const state = getState();
-        const {currentNote} = state.notes;
-        const note = state.notes.list.find(note => note.id === id);
+        const {list, currentNote} = state.notes;
+        const note = list.find(note => note.id === id);
         if (note) {
             resp = await storage.updateOne(id, currentNote);
+            if(resp) {
+                let index = list.indexOf(note)
+                dispatch(noteUpdate({index, note: resp}));
+            }
         } else {
             resp = await storage.insertOne(currentNote);
+            if(resp) dispatch(noteAdded(resp));
         }
-        if(resp) dispatch(notesLoaded(resp));
+    }
+}
+
+export const fetchNoteDelete = (id) => {
+    return async (dispatch, getState) => {
+        // debugger
+        dispatch(notesLoading('loading'))
+        let resp;
+        try {
+            const state = getState();
+            const {list} = state.notes;
+            const note = list.find(note => note.id === id);
+            if (note) {
+                resp = await storage.deleteOne(id);
+                if (resp) throw new Error('delete not success')
+                dispatch(noteDelete(note.id));
+            }
+        } catch (e) {
+            alert(e)
+        }
     }
 }
 

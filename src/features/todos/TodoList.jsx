@@ -7,8 +7,8 @@ import TodoListItem from './TodoListItem'
 const TodoList = () => {
   const todos  = useSelector(selectFilteredTodos);
 
-  const renderedListItems = todos.map(todo => {
-    return <TodoListItem key={todo.id} id={todo.id} todo={todo}/>
+  const renderedListItems = todos.map((todo, index) => {
+    return <TodoListItem key={index} index={index} todo={todo}/>
   })
 
   return <ul className="divide-y divide-gray-100 px-5">{renderedListItems}</ul>

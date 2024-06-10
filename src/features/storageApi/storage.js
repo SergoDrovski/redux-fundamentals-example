@@ -25,12 +25,15 @@ export class Storage {
     async connect() {
         // debugger
         if(!this.storageApi) return null;
-        const connect = await this.storageApi.connect(this.connectData);
-        if(connect) {
-            this.connectStatus = true;
-            return connect;
+        try {
+            const connect = await this.storageApi.connect(this.connectData);
+            if(connect) {
+                this.connectStatus = true;
+                return connect;
+            }
+        } catch (e) {
+            return Promise.reject(e.message)
         }
-        return null;
     }
 
     async find() {
@@ -45,6 +48,9 @@ export class Storage {
         return this.storageApi.insertOne(note);
     }
 
+    async deleteOne(note) {
+        return this.storageApi.deleteOne(note);
+    }
 }
 
 export const storage = new Storage();

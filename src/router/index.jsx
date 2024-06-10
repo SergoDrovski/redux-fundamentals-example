@@ -9,10 +9,15 @@ import ConnectStorage from "@/features/storageApi/ConnectStorage";
 import {storage} from "@/features/storageApi/storage";
 
 const checkConnect = async () => {
+    // debugger
     if (!storage.connectStatus) {
-        await storage.connect();
-        if (storage.connectStatus) return null;
-        return redirect("/connect");
+        try {
+            await storage.connect();
+            if (storage.connectStatus) return null;
+            // return redirect("/connect");
+        } catch (err) {
+            return redirect("/connect");
+        }
     }
     return null;
 };

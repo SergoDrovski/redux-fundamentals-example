@@ -1,11 +1,18 @@
 import ListNotes from "@/features/notes/ListNotes";
-import {selectList, selectStatusNotes} from "@/features/notes/notesSlice";
 import {useSelector} from "react-redux";
 import Loader from "@/features/common/Loader";
+import {useDispatch} from "react-redux";
+import {setCurrentNote} from "@/features/notes/notesSlice";
+import {useEffect} from "react";
 
 function Notes() {
-    const loading  = useSelector(selectStatusNotes);
-    const listNotes  = useSelector(selectList);
+    const dispatch  = useDispatch();
+    const { currentNote, list, status }  = useSelector(state => state.notes);
+
+    useEffect(() => {
+        if(currentNote) dispatch(setCurrentNote(null))
+    }, [currentNote]);
+
 
     return (
         <>
@@ -13,9 +20,9 @@ function Notes() {
                 <h1 className="text-3xl font-bold tracking-tight text-gray-900">List of Notes</h1>
             </div>
             {
-                (loading !== 'complete') ?
+                (status !== 'complete') ?
                     (<Loader/>) :
-                    ((listNotes.length > 0) ? <ListNotes notes={listNotes}/> : (
+                    ((list.length > 0) ? <ListNotes notes={list}/> : (
                         <p> There is no notes right now!<br/> Click Create Note button to create one. </p>))
             }
         </>

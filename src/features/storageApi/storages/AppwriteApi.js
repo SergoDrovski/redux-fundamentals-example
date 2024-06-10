@@ -33,48 +33,89 @@ export class AppwriteApi {
 
     async connect(data) {
         this.setConnectData(data);
-        return await client.get(
-            this.endpoint,
+        return client.get(
+            this.endpoint + `/${this.databaseId}/collections/${this.collectionId}/documents`,
             {headers: this.headers}
         )
     }
 
     async find() {
-        debugger
-        const res = await client.get(
+        // debugger
+        const collection = await client.get(
             this.endpoint + `/${this.databaseId}/collections/${this.collectionId}/documents`,
             {headers: this.headers}
         )
-
-        // const normalizeData = res.documents.map((note)=>{
-        //
-        // });
-        return res.documents
+        return collection.documents.map((document)=>{
+            return this.normalizeDoc(document)
+        });
     }
 
-    async updateOne({id, title, status, todos}) {
+    async updateOne(id, entity) {
+        // debugger
         const body = {
-            title: "new title",
-            status,
-            todos: [
-                {
-                    $id: "66506b15001a15cd4806",
-                    text: "test",
-                    completed: false
-                },
-                {
-                    $id: "66506b230000f415b097",
-                    text: "test",
-                    completed: false
-                }
-            ]
+            permissions: ["write(\"any\")"],
+            data: {
+                title: entity.title,
+                status:entity.status,
+                todos: entity.todos.map(todo => {
+                    let newTodo = {
+                        text: todo.text,
+                        completed: todo.completed
+                    }
+                    if(todo.id) newTodo.$id = todo.id
+                    return newTodo
+                })
+            }
         }
-        const res = await client.patch(
-            this.endpoint + `/${this.databaseId}/collections/${this.collectionId}/documents/66506b5d00348ff48c8a`,
-            JSON.stringify(body),
+
+        const document = await client.patch(
+            this.endpoint + `/${this.databaseId}/collections/${this.collectionId}/documents/${id}`,
+            body,
             {headers: this.headers},
         )
 
-        return res.documents
+        return this.normalizeDoc(document);
+    }
+
+    async deleteOne(id) {
+        // debugger
+        return client.delete(
+            this.endpoint + `/${this.databaseId}/collections/${this.collectionId}/documents/${id}`,
+            null,
+            {headers: this.headers},
+        );
+    }
+
+    async insertOne(entity) {
+        // debugger
+        const body = {
+            documentId: "unique()",
+            permissions: ["write(\"any\")"],
+            data: entity
+        }
+
+        const document = await client.post(
+            this.endpoint + `/${this.databaseId}/collections/${this.collectionId}/documents`,
+            body,
+            {headers: this.headers},
+        )
+
+        return this.normalizeDoc(document);
+    }
+
+    normalizeDoc(document) {
+        return {
+            id: document.$id,
+            title: document.title,
+            status: document.status,
+            createdAt: document.$createdAt,
+            todos: document.todos.map(todo => {
+                return {
+                    id: todo.$id,
+                    text: todo.text,
+                    completed: todo.completed
+                }
+            })
+        }
     }
 }

@@ -1,6 +1,6 @@
 import {NavLink, useMatch} from "react-router-dom";
 import {useDispatch} from "react-redux";
-import {setCurrentNote, fetchNoteUpdate} from "@/features/notes/notesSlice";
+import {fetchNoteUpdate} from "@/features/notes/notesSlice";
 import ControlBtn from "@/features/nav/ControlBtn";
 function Navigation() {
     const noteRout = useMatch("/note/:id");
@@ -13,7 +13,7 @@ function Navigation() {
         const currentId = noteRout.params.id;
         btnData = {
             href: '/',
-            handleNote: () => dispatch(fetchNoteUpdate(currentId)),
+            handleNote: () => {dispatch(fetchNoteUpdate(currentId))},
             activeClass: "bg-green-500 hover:bg-green-400",
             text: "Save Note"
         }
@@ -21,7 +21,7 @@ function Navigation() {
     if(Boolean(listRout)){
         btnData = {
             href: `/note/new`,
-            handleNote: () => dispatch(setCurrentNote(null)),
+            handleNote: () => {},
             activeClass: "bg-indigo-500 hover:bg-indigo-400",
             text: "Create Note"
         }

@@ -29,7 +29,7 @@ export default function SelectStorage() {
         storage.connect().then((connect)=>{
             navigate("/");
         }).catch(err=>{
-            alert(err.message);
+            alert(err);
             setPending(false);
         })
     }

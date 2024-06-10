@@ -10,18 +10,19 @@ import TodosHeader from "@/features/todos/TodosHeader";
 
 
 function CreateNote() {
+    // debugger
     const dispatch  = useDispatch();
     const noteRout = useMatch("/note/:id");
     const { currentNote, status }  = useSelector(state => state.notes);
 
-    const currentId = noteRout.params.id;
+    const id = noteRout.params.id;
     useEffect(() => {
-        if(status === "complete"){
-            dispatch(setCurrentNote(currentId));
+        if(status === "complete" && !currentNote){
+            dispatch(setCurrentNote(id));
         }
     }, [status]);
 
-    if(status === "idle"){
+    if(status === "idle" || !currentNote){
         return (<Loader/>);
     }
 

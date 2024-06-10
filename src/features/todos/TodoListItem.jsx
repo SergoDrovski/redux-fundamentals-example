@@ -2,17 +2,17 @@ import React from 'react'
 import {useDispatch} from 'react-redux'
 import { todoDeleted, todoToggled } from '../notes/notesSlice'
 
-const TodoListItem = ({todo}) => {
+const TodoListItem = ({todo, index}) => {
     const dispatch = useDispatch()
 
     const {text, completed} = todo
 
     const handleCompletedChanged = (e) => {
-        dispatch(todoToggled(todo.id))
+        dispatch(todoToggled(index))
     }
 
     const onDelete = (e) => {
-        dispatch(todoDeleted(todo.id))
+        dispatch(todoDeleted(index))
     }
 
     return (

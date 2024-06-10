@@ -15,10 +15,11 @@ export async function client(endpoint, { body, ...customConfig } = {}) {
 
   let data
   try {
-    debugger
+    // debugger
     const response = await fetch(endpoint, config)
-    data = await response.json()
     if (response.ok) {
+      if(response.status === 204) return null
+      data = await response.json();
       return data
     }
     throw new Error(response.statusText)
@@ -38,3 +39,8 @@ client.post = function (endpoint, body, customConfig = {}) {
 client.patch = function (endpoint, body, customConfig = {}) {
   return client(endpoint, { ...customConfig, body, method: 'PATCH' })
 }
+
+client.delete = function (endpoint, body, customConfig = {}) {
+  return client(endpoint, { ...customConfig, body, method: 'DELETE' })
+}
+
