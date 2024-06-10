@@ -14,7 +14,7 @@ const checkConnect = async () => {
         try {
             await storage.connect();
             if (storage.connectStatus) return null;
-            // return redirect("/connect");
+            return redirect("/connect");
         } catch (err) {
             return redirect("/connect");
         }

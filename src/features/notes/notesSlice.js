@@ -32,7 +32,7 @@ export const notesSlice = createSlice({
             return state;
         },
         noteAdded: (state, action)=> {
-            // debugger
+            //debugger
             state.list.push(action.payload);
             state.status = "complete";
             return state
@@ -139,15 +139,16 @@ export const fetchNoteUpdate = (id) => {
         let resp;
         const state = getState();
         const {list, currentNote} = state.notes;
+        const title = currentNote.title !== '' ? currentNote.title : 'untitled';
         const note = list.find(note => note.id === id);
         if (note) {
-            resp = await storage.updateOne(id, currentNote);
+            resp = await storage.updateOne(id, {...currentNote, title});
             if(resp) {
                 let index = list.indexOf(note)
                 dispatch(noteUpdate({index, note: resp}));
             }
         } else {
-            resp = await storage.insertOne(currentNote);
+            resp = await storage.insertOne({...currentNote, title});
             if(resp) dispatch(noteAdded(resp));
         }
     }

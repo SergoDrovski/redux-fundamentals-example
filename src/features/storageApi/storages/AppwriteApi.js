@@ -30,6 +30,21 @@ export class AppwriteApi {
         }
     }
 
+    normalizeDoc(document) {
+        return {
+            id: document.$id,
+            title: document.title,
+            status: document.status,
+            createdAt: document.$createdAt,
+            todos: document.todos.map(todo => {
+                return {
+                    id: todo.$id,
+                    text: todo.text,
+                    completed: todo.completed
+                }
+            })
+        }
+    }
 
     async connect(data) {
         this.setConnectData(data);
@@ -101,21 +116,5 @@ export class AppwriteApi {
         )
 
         return this.normalizeDoc(document);
-    }
-
-    normalizeDoc(document) {
-        return {
-            id: document.$id,
-            title: document.title,
-            status: document.status,
-            createdAt: document.$createdAt,
-            todos: document.todos.map(todo => {
-                return {
-                    id: todo.$id,
-                    text: todo.text,
-                    completed: todo.completed
-                }
-            })
-        }
     }
 }
