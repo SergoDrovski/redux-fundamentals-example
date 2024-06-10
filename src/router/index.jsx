@@ -14,9 +14,9 @@ const checkConnect = async () => {
         try {
             await storage.connect();
             if (storage.connectStatus) return null;
-            return redirect("/connect");
+            return redirect("connect");
         } catch (err) {
-            return redirect("/connect");
+            return redirect("connect");
         }
     }
     return null;
@@ -24,7 +24,7 @@ const checkConnect = async () => {
 
 export const router = createBrowserRouter([
     {
-        path: '/redux-fundamentals-example/',
+        path: '',
         element: <Layout />,
         children: [
             {
@@ -40,7 +40,10 @@ export const router = createBrowserRouter([
         ],
     },
     {
-        path: '/redux-fundamentals-example/connect',
+        path:  'connect',
         element: <ConnectStorage />
     },
-]);
+],
+    {
+        basename: '/redux-fundamentals-example/',
+});
